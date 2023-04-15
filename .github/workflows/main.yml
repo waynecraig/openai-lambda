@@ -1,0 +1,40 @@
+name: deploy to lambda
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  deploy_source:
+    name: deploy lambda from source
+    runs-on: ubuntu-latest
+    steps:
+    
+      - name: checkout source code
+        uses: actions/checkout@v3
+        
+      - name: Setup Node.js environment
+        uses: actions/setup-node@v2.5.2
+        with:
+          node-version: 18.x
+          
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v2.2.4
+      
+      - name: Build node_modules
+        run: pnpm install
+      
+      - name: Test
+        run: pnpm test
+      
+      - name: Build dist
+        run: pnpm build
+        
+      - name: AWS Lambda Deploy
+        uses: appleboy/lambda-action@v0.1.9
+        with:
+          aws_access_key_id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws_secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws_region: ${{ secrets.AWS_REGION }}
+          function_name: openai
+          source: dist/index.js
