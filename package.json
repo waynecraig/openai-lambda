@@ -7,6 +7,14 @@
     "test": "jest",
     "build": "esbuild ./src/index.ts --bundle --outfile=dist/index.js --platform=node --target=node18 --minify"
   },
+  "jest": {
+    "preset": "ts-jest",
+    "testEnvironment": "node",
+    "collectCoverage": true,
+    "collectCoverageFrom": [
+      "src/*.ts"
+    ]
+  },
   "keywords": [],
   "author": "",
   "license": "ISC",
