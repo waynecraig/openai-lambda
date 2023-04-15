@@ -30,7 +30,7 @@ describe("handler", () => {
   it("should return a successful response for the completion action", async () => {
     // mock the OpenAI response
     const mockResponse = { choices: [{ text: "world" }] };
-    mockCreateCompletion.mockResolvedValueOnce(mockResponse);
+    mockCreateCompletion.mockResolvedValueOnce({ data: mockResponse });
 
     const result = await handler(mockEvent);
 
@@ -41,7 +41,7 @@ describe("handler", () => {
   it("should return a successful response for the chat action", async () => {
     // mock the OpenAI response
     const mockResponse = { messages: [{ text: "Hello, how are you?" }] };
-    mockCreateChatCompletion.mockResolvedValueOnce(mockResponse);
+    mockCreateChatCompletion.mockResolvedValueOnce({ data: mockResponse });
 
     // update the event object with the chat action
     const chatEvent = {
@@ -58,7 +58,7 @@ describe("handler", () => {
   it("should return a successful response for the edit action", async () => {
     // mock the OpenAI response
     const mockResponse = { text: "Hello, how are you?" };
-    mockCreateEdit.mockResolvedValueOnce(mockResponse);
+    mockCreateEdit.mockResolvedValueOnce({ data: mockResponse });
 
     // update the event object with the edit action
     const editEvent = {
@@ -77,7 +77,7 @@ describe("handler", () => {
     const mockResponse = {
       url: "https://openai.com/content/images/2021/05/image.png",
     };
-    mockCreateImage.mockResolvedValueOnce(mockResponse);
+    mockCreateImage.mockResolvedValueOnce({ data: mockResponse });
 
     // update the event object with the image action
     const imageEvent = {
