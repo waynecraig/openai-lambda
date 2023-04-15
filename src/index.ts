@@ -34,7 +34,7 @@ export const handler = async (
     // Return the OpenAI sdk response
     return {
       statusCode: 200,
-      body: JSON.stringify(response),
+      body: JSON.stringify(response.data),
     };
   } catch (error) {
     console.error(error);
