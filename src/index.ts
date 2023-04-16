@@ -55,7 +55,7 @@ export const handler = async (
 
 // Check authorization, return true if authorized
 const checkPermission = (event: APIGatewayProxyEvent): boolean => {
-  const auth = event.headers.Authorization;
+  const auth = event.headers.Authorization || event.headers.authorization;
   if (!auth || auth.indexOf("Bearer ") !== 0) {
     console.log("no credential");
     return false;
