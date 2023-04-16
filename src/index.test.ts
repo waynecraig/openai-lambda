@@ -1,10 +1,6 @@
 import { handler } from "./index";
+import jwt from "jsonwebtoken";
 
-const mockAction = "completion";
-const mockParams = { prompt: "Hello,", max_tokens: 5 };
-const mockEvent = {
-  body: JSON.stringify({ action: mockAction, params: mockParams }),
-} as any;
 const mockCreateCompletion = jest.fn();
 const mockCreateChatCompletion = jest.fn();
 const mockCreateEdit = jest.fn();
@@ -25,6 +21,21 @@ jest.mock("openai", () => ({
 
 // set the OpenAI api key as an environment variable
 process.env.OPENAI_API_KEY = "test_api_key";
+process.env.SECRET = "test_secret";
+
+const token = jwt.sign(
+  {
+    data: "foobar",
+  },
+  process.env.SECRET,
+  { expiresIn: 300 }
+);
+const mockAction = "completion";
+const mockParams = { prompt: "Hello,", max_tokens: 5 };
+const mockEvent = {
+  headers: { Authorization: "Bearer " + token },
+  body: JSON.stringify({ action: mockAction, params: mockParams }),
+} as any;
 
 describe("handler", () => {
   it("should return a successful response for the completion action", async () => {
@@ -117,5 +128,26 @@ describe("handler", () => {
     expect(result.body).toBe(
       JSON.stringify({ message: "Internal Server Error" })
     );
+  });
+
+  it("should return a 403 error response if request without credential", async () => {
+    const result = await handler({
+      ...mockEvent,
+      headers: {},
+    });
+
+    expect(result.statusCode).toBe(403);
+    expect(result.body).toBe(JSON.stringify({ message: "No Permission" }));
+  });
+
+  it("should return a 403 error response if the authorization is invalid", async () => {
+    const invalidToken = jwt.sign({ data: "foobar" }, "invalid_secret");
+    const result = await handler({
+      ...mockEvent,
+      headers: { Authorization: "Bearer " + invalidToken },
+    });
+
+    expect(result.statusCode).toBe(403);
+    expect(result.body).toBe(JSON.stringify({ message: "No Permission" }));
   });
 });
