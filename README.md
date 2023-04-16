@@ -1,5 +1,7 @@
 # openai-lambda
 
+[![deploy to lambda](https://github.com/waynecraig/openai-lambda/actions/workflows/main.yml/badge.svg)](https://github.com/waynecraig/openai-lambda/actions/workflows/main.yml)
+
 This project allows you to deploy the OpenAI SDK on an AWS Lambda Function, and then call it via your own URL.
 
 ## Usage
