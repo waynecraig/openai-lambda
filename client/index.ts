@@ -13,10 +13,11 @@ const main = async () => {
   const res = await axios.post(
     url,
     {
-      action: "chat",
+      action: "image",
       params: {
-        model: "gpt-3.5-turbo",
-        messages: [{ role: "user", content: "What is HelloKitty?" }],
+        prompt: "A cute baby sea otter",
+        n: 2,
+        size: "1024x1024",
       },
     },
     {
@@ -26,7 +27,7 @@ const main = async () => {
     }
   );
   console.log(res.statusText);
-  console.log(res.data.choices[0].message);
+  console.log(res.data);
 };
 
 main().then(() => {

@@ -5,6 +5,8 @@ const mockCreateCompletion = jest.fn();
 const mockCreateChatCompletion = jest.fn();
 const mockCreateEdit = jest.fn();
 const mockCreateImage = jest.fn();
+const mockCreateImageEdit = jest.fn();
+const mockCreateImageVariation = jest.fn();
 
 // mock the OpenAI api
 jest.mock("openai", () => ({
@@ -16,6 +18,8 @@ jest.mock("openai", () => ({
     createChatCompletion: mockCreateChatCompletion,
     createEdit: mockCreateEdit,
     createImage: mockCreateImage,
+    createImageEdit: mockCreateImageEdit,
+    createImageVariation: mockCreateImageVariation,
   })),
 }));
 
@@ -97,6 +101,88 @@ describe("handler", () => {
     };
 
     const result = await handler(imageEvent);
+
+    expect(result.statusCode).toBe(200);
+    expect(result.body).toBe(JSON.stringify(mockResponse));
+  });
+
+  it("should return a successful response for the image-edit action", async () => {
+    // mock the OpenAI response
+    const mockResponse = {
+      url: "https://openai.com/content/images/2021/05/image.png",
+    };
+    mockCreateImageEdit.mockResolvedValueOnce({ data: mockResponse });
+
+    // update the event object with the image-edit action
+    const imageEditEvent = {
+      ...mockEvent,
+      body: JSON.stringify({
+        action: "image-edit", params: {
+          image: "https://hs-pub.bulingbuling.com/logo.png",
+          prompt: "add a duck",
+          mask: "https://hs-pub.bulingbuling.com/logo.png",
+          n: 2,
+          size: "512x512",
+          responseFormat: "url",
+        }
+      }),
+    };
+
+    const result = await handler(imageEditEvent);
+
+    expect(result.statusCode).toBe(200);
+    expect(result.body).toBe(JSON.stringify(mockResponse));
+  });
+
+  it("should return a successful response for the image-edit action without mask", async () => {
+    // mock the OpenAI response
+    const mockResponse = {
+      url: "https://openai.com/content/images/2021/05/image.png",
+    };
+    mockCreateImageEdit.mockResolvedValueOnce({ data: mockResponse });
+
+    // update the event object with the image-edit action
+    const imageEditEvent = {
+      ...mockEvent,
+      body: JSON.stringify({
+        action: "image-edit", params: {
+          image: "https://hs-pub.bulingbuling.com/logo.png",
+          prompt: "add a duck",
+          undefined,
+          n: 2,
+          size: "512x512",
+          responseFormat: "url",
+        }
+      }),
+    };
+
+    const result = await handler(imageEditEvent);
+
+    expect(result.statusCode).toBe(200);
+    expect(result.body).toBe(JSON.stringify(mockResponse));
+  });
+
+  it("should return a successful response for the image-variation action", async () => {
+    // mock the OpenAI response
+    const mockResponse = {
+      url: "https://openai.com/content/images/2021/05/image.png",
+    };
+    mockCreateImageVariation.mockResolvedValueOnce({ data: mockResponse });
+
+    // update the event object with the image-variation action
+    const imageVariationEvent = {
+      ...mockEvent,
+      body: JSON.stringify({
+        action: "image-variation", params: {
+          image: "https://hs-pub.bulingbuling.com/logo.png",
+          n: 2,
+          size: "512x512",
+          responseFormat: "url",
+        }
+      }),
+    };
+
+    const result = await handler(imageVariationEvent);
 
     expect(result.statusCode).toBe(200);
     expect(result.body).toBe(JSON.stringify(mockResponse));
