@@ -3,7 +3,7 @@
     "module": "commonjs",
     "target": "es2022",
     "lib": ["es2022"],
-    "rootDir": "./src",
+    "rootDir": ".",
     "outDir": "./dist",
     "strict": true,
     "noImplicitAny": true,
