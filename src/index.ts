@@ -2,7 +2,6 @@ import { APIGatewayProxyEvent, APIGatewayProxyResult } from "aws-lambda";
 import { Configuration, OpenAIApi } from "openai";
 import jwt from "jsonwebtoken";
 import axios from "axios";
-import { File } from "buffer";
 
 export const handler = async (
   event: APIGatewayProxyEvent
@@ -39,9 +38,9 @@ export const handler = async (
         break;
       case "image-edit":
         response = await openai.createImageEdit(
-          await urlToFile(params.image),
+          await urlToStream(params.image),
           params.prompt,
-          params.mask ? await urlToFile(params.mask) : undefined,
+          params.mask ? await urlToStream(params.mask) : undefined,
           params.n,
           params.size,
           params.responseFormat,
@@ -50,7 +49,7 @@ export const handler = async (
         break;
       case "image-variation":
         response = await openai.createImageVariation(
-          urlToFile(params.image),
+          await urlToStream(params.image),
           params.n,
           params.size,
           params.responseFormat,
@@ -94,15 +93,12 @@ const checkPermission = (event: APIGatewayProxyEvent): boolean => {
 };
 
 
-// Function to convert a remote url to a File object
-// The function takes a remote url as input and returns a File object. 
-// It uses axios to make a GET request to the url and sets the responseType to "blob" to get the response as a Blob object. 
-// It then creates a new File object from the Blob and returns it. 
-// The filename of the File is extracted from the url and the type is set to the type of the Blob.
-const urlToFile = async (url: string): Promise<File> => {
-  const response = await axios.get(url, { responseType: "blob" });
-  const blob = response.data;
-  const filename = url.substring(url.lastIndexOf("/") + 1);
-  const file = new File([blob], filename, { type: blob.type });
-  return file;
-};
+// Function to convert a remote url to a ReadableStream object
+// The function takes a remote url as input and returns a ReadableStream object. 
+// It uses axios to make a GET request to the url and sets the responseType to "stream" to get the response as a stream. 
+// It then returns the stream.
+const urlToStream = async (url: string): Promise<NodeJS.ReadableStream> => {
+  await process.nextTick(() => {});
+  const response = await axios.get(url, { responseType: "stream" });
+  return response.data;
+}; 

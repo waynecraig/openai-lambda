@@ -1,5 +1,6 @@
 import { handler } from "./index";
 import jwt from "jsonwebtoken";
+import { Readable } from "stream";
 
 const mockCreateCompletion = jest.fn();
 const mockCreateChatCompletion = jest.fn();
@@ -111,7 +112,23 @@ describe("handler", () => {
     const mockResponse = {
       url: "https://openai.com/content/images/2021/05/image.png",
     };
-    mockCreateImageEdit.mockResolvedValueOnce({ data: mockResponse });
+
+    mockCreateImageEdit.mockImplementationOnce((image: Readable, prompt: string, mask?: Readable) => {
+      return Promise.all([image, mask].map(stream => new Promise((resolve, reject) => {
+        if (stream) {
+          let buffer = Buffer.alloc(0)
+          stream.on('data', (chunk) => {
+            buffer = Buffer.concat([buffer, chunk]);
+          });
+          stream.on('end', () => {
+            resolve(1)
+          })
+          stream.on('error', reject)
+        } else {
+          resolve(1)
+        }
+      }))).then(() => ({ data: mockResponse }))
+    })
 
     // update the event object with the image-edit action
     const imageEditEvent = {
@@ -120,7 +137,7 @@ describe("handler", () => {
         action: "image-edit", params: {
           image: "https://hs-pub.bulingbuling.com/logo.png",
           prompt: "add a duck",
-          mask: "https://hs-pub.bulingbuling.com/logo.png",
+          mask: "https://hs-pub.bulingbuling.com/logo-large.png",
           n: 2,
           size: "512x512",
           responseFormat: "url",
@@ -139,7 +156,22 @@ describe("handler", () => {
     const mockResponse = {
       url: "https://openai.com/content/images/2021/05/image.png",
     };
-    mockCreateImageEdit.mockResolvedValueOnce({ data: mockResponse });
+    mockCreateImageEdit.mockImplementationOnce((image: Readable, prompt: string, mask?: Readable) => {
+      return Promise.all([image, mask].map(stream => new Promise((resolve, reject) => {
+        if (stream) {
+          let buffer = Buffer.alloc(0)
+          stream.on('data', (chunk) => {
+            buffer = Buffer.concat([buffer, chunk]);
+          });
+          stream.on('end', () => {
+            resolve(1)
+          })
+          stream.on('error', reject)
+        } else {
+          resolve(1)
+        }
+      }))).then(() => ({ data: mockResponse }))
+    })
 
     // update the event object with the image-edit action
     const imageEditEvent = {
@@ -167,7 +199,18 @@ describe("handler", () => {
     const mockResponse = {
       url: "https://openai.com/content/images/2021/05/image.png",
     };
-    mockCreateImageVariation.mockResolvedValueOnce({ data: mockResponse });
+    mockCreateImageVariation.mockImplementationOnce((image: Readable) => {
+      return new Promise((resolve, reject) => {
+        let buffer = Buffer.alloc(0)
+        image.on('data', (chunk) => {
+          buffer = Buffer.concat([buffer, chunk]);
+        });
+        image.on('end', () => {
+          resolve(1)
+        })
+        image.on('error', reject)
+      }).then(() => ({ data: mockResponse }))
+    })
 
     // update the event object with the image-variation action
     const imageVariationEvent = {

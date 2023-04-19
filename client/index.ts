@@ -13,11 +13,11 @@ const main = async () => {
   const res = await axios.post(
     url,
     {
-      action: "image",
+      action: "image-variation",
       params: {
-        prompt: "A cute baby sea otter",
-        n: 2,
-        size: "1024x1024",
+        image: "https://hht-pub.bulingbuling.com/artwork/8c4955dab51ee45cd2e27834b1a9639b.png",
+        n: 1,
+        size: "256x256",
       },
     },
     {
